@@ -17,9 +17,13 @@ function Feed({ category }) {
 
   const fetchData = async () => {
     const VideoList_url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=100&regionCode=IN&videoCategoryId=${category}&key=${API_KEY}`;
-    await fetch(VideoList_url)
-      .then((response) => response.json())
-      .then((data) => setData(data.items));
+    try {
+      const response = await fetch(VideoList_url);
+      const data = await response.json();
+      setData(data?.items || []);
+    } catch (err) {
+      console.error("Feed fetch error:", err);
+    }
   };
 
   useEffect(() => {
@@ -30,7 +34,7 @@ function Feed({ category }) {
     <div className="feed">
       {data.map((items,index) => {
         return (
-          <Link to={`video/${items.snippet.categoryId}/${items.id}`} className="card">
+          <Link to={`/video/${items.id}`} className="card">
             <img src={items.snippet.thumbnails.medium.url} alt="" />
             <h2>{items.snippet.title}</h2>
             <h3>{items.snippet.channelTitle}</h3>
